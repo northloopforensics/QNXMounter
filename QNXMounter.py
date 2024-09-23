@@ -1,9 +1,17 @@
 import customtkinter as ctk
 from tkinter import messagebox, filedialog
 import subprocess
+import os
 
-# Run batch script for mounting or unmounting
-def run_batch_script(action):
+
+def work_site():      # Cause script to execute in directory containing script and batch file
+    
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    global pwd
+    pwd = os.path.dirname(os.path.abspath(__file__))
+
+
+def run_batch_script(action): # Run batch script 
     bin_image_path = bin_image_entry.get()
     mount_base_dir = mount_base_entry.get()
     sudo_password = sudo_password_entry.get()
@@ -12,7 +20,7 @@ def run_batch_script(action):
         messagebox.showerror("Input Error", "All fields are required!")
         return
 
-    batch_file_path = 'path_to_your_batch_file.bat'  # Update with your batch file path
+    batch_file_path = './mountqnx6.bat'  
     command = f'start cmd /c "{batch_file_path} {action} \"{bin_image_path}\" \"{mount_base_dir}\" \"{sudo_password}\""'
     
     try:
@@ -21,22 +29,22 @@ def run_batch_script(action):
     except subprocess.CalledProcessError as e:
         messagebox.showerror("Execution Error", f"Error running batch script: {e}")
 
-# File selection dialog for .bin image file
-def select_bin_file():
+
+def select_bin_file():  # File selection dialog for .bin image file
     file_path = filedialog.askopenfilename(title="Select .bin Image", filetypes=[("BIN Files", ("*.bin", ".BIN", "*.img", ".IMG", ".dd", ".DD"))])
     if file_path:
         bin_image_entry.delete(0, ctk.END)
         bin_image_entry.insert(0, file_path)
 
-# Directory selection dialog for mount base directory
-def select_mount_dir():
+def select_mount_dir(): # Directory selection dialog for mount base directory
+
     dir_path = filedialog.askdirectory(title="Select Mount Base Directory")
     if dir_path:
         mount_base_entry.delete(0, ctk.END)
         mount_base_entry.insert(0, dir_path)
 
-# Set up the CustomTkinter GUI
-ctk.set_appearance_mode("System")  # Can be set to "Dark" or "Light"
+# GUI Stuff
+ctk.set_appearance_mode("System")  # use system setting for light or dark mode
 ctk.set_default_color_theme("blue")  
 
 app = ctk.CTk()
@@ -47,7 +55,7 @@ app.geometry("600x250")
 title_label = ctk.CTkLabel(app, text="QNX6 Mounting Tool", font=ctk.CTkFont(size=16, weight="bold"))
 title_label.grid(row=0, column=0, columnspan=3, pady=10)
 
-# Input for Bin Image Path
+# Input for Image 
 bin_image_label = ctk.CTkLabel(app, text="Path to Image File:")
 bin_image_label.grid(row=1, column=0, padx=5, pady=5, sticky="e")
 
@@ -57,7 +65,7 @@ bin_image_entry.grid(row=1, column=1, padx=5, pady=5, sticky="w")
 bin_image_button = ctk.CTkButton(app, text="Browse", command=select_bin_file)
 bin_image_button.grid(row=1, column=2, padx=5, pady=5)
 
-# Input for Mount Base Directory
+# Input for Mount Point Directory
 mount_base_label = ctk.CTkLabel(app, text="Mount Point Directory:")
 mount_base_label.grid(row=2, column=0, padx=5, pady=5, sticky="e")
 
@@ -82,4 +90,6 @@ run_button.grid(row=4, column=0, columnspan=2, pady=10)
 unmount_button = ctk.CTkButton(app, text="Unmount Image", command=lambda: run_batch_script('unmount'), fg_color="#1B36A3")
 unmount_button.grid(row=4, column=1, columnspan=2, pady=10)
 
+work_site()
+print(pwd)
 app.mainloop()
